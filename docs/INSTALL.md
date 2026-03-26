@@ -200,6 +200,7 @@ The application uses a configuration file named `config`, located in the root di
 2. **Create a Configuration File**  
    Create `/etc/nginx/sites-available/seonaut` with the following content:
 
+```nginx
     server {
         listen 80;
         server_name example.com;
@@ -207,21 +208,21 @@ The application uses a configuration file named `config`, located in the root di
         location / {
             proxy_pass http://localhost:9000;
             proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-        }
 
-        location /crawl/ws {
-            proxy_pass http://localhost:9000/crawl/ws;
-            proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
             proxy_set_header Host $host;
+            proxy_set_header Origin $scheme://$http_host;
+
             proxy_cache_bypass $http_upgrade;
+
+            # Disable buffering/caching for WS
+            chunked_transfer_encoding off;
+            proxy_buffering off;
+            proxy_cache off;
         }
     }
+```
 
 3. **Enable HTTPS with Certbot**  
    Install Certbot and configure HTTPS:
